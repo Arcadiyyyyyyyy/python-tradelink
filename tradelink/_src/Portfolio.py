@@ -19,6 +19,8 @@ class Portfolio:
     cached_portfolio: PortfolioModel
     cache_updated_at: None | datetime = None
 
+    time_format: str = "%Y-%m-%dT%H:%M:%S.%fZ"
+
     def __init__(
         self,
         _id: str,
@@ -79,3 +81,69 @@ class Portfolio:
         """Absolute value"""
         await self._update_cache_if_stale()
         return self.cached_portfolio.extended.feeStat.volume
+
+    async def get_last_valid_data_date(self) -> datetime:
+        await self._update_cache_if_stale()
+        return datetime.strptime(
+            self.cached_portfolio.extended.lastValidDataDate, self.time_format
+        )
+
+    async def get_start_date(self) -> datetime:
+        await self._update_cache_if_stale()
+        return datetime.strptime(
+            self.cached_portfolio.extended.startDate, self.time_format
+        )
+
+    async def get_end_date(self) -> datetime:
+        await self._update_cache_if_stale()
+        return datetime.strptime(
+            self.cached_portfolio.extended.endDate, self.time_format
+        )
+
+    async def get_unrpnl_deposit_of_the_first_point(self) -> float:
+        """Absolute unrealized value"""
+        await self._update_cache_if_stale()
+
+        if (
+            self.cached_portfolio.extended.chart_balances
+            and self.cached_portfolio.extended.chart_profits
+            and self.cached_portfolio.extended.chart_balances[0]
+            and self.cached_portfolio.extended.chart_profits[0]
+        ):
+            return self.cached_portfolio.extended.chart_balances[0].value / (
+                1 + self.cached_portfolio.extended.chart_profits[0].value
+            )
+        else:
+            return 0
+
+    async def get_total_deposits(self) -> float:
+        """Absolute value"""
+        await self._update_cache_if_stale()
+
+        return self.cached_portfolio.extended.feeStat.deps
+
+    async def get_total_withdraws(self) -> float:
+        """Absolute value"""
+        await self._update_cache_if_stale()
+
+        return self.cached_portfolio.extended.feeStat.wths
+
+    async def get_unrpnl_last_balance(self) -> float:
+        """Absolute value"""
+        await self._update_cache_if_stale()
+
+        if (
+            self.cached_portfolio.extended.chart_balances
+            and self.cached_portfolio.extended.chart_balances[0]
+        ):
+            return self.cached_portfolio.extended.chart_balances[-1].value
+        else:
+            return 0
+
+    async def get_unrpnl_last_netpnl(self) -> float:
+        """Absolute value"""
+        await self._update_cache_if_stale()
+
+        return sum(
+            [x.value for x in self.cached_portfolio.extended.chart_dailyPnL]
+        )

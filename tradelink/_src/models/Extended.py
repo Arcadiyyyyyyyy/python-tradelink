@@ -3,14 +3,14 @@ from pydantic import BaseModel
 
 
 class ListElement(BaseModel):
-    timestamp: int
-    value: float  # Should be converted to the datetime
-    
+    timestamp: int  # Should be converted to the datetime
+    value: float
+
 
 class OrderElement(BaseModel):
     abs: int | float
     rel: int | float
-    
+
 
 class SymbolElement(BaseModel):
     symbol: str
@@ -18,7 +18,7 @@ class SymbolElement(BaseModel):
     pnl: dict[str, float]
     qty: dict[str, int | float]
     direction: dict[str, OrderElement | float]
-    
+
 
 class FeeStats(BaseModel):
     paid: float
@@ -37,13 +37,13 @@ class FeeStats(BaseModel):
     optionVol: float
     optionFeeN: float
     optionFeeP: float
-    
+
 
 class User(BaseModel):
     links: list[Optional[dict[str, str]]]
     name: str
     avatar: None | str
-    
+
 
 class Orders(BaseModel):
     withRealizedPnl: bool
@@ -56,33 +56,33 @@ class Orders(BaseModel):
 
 class Extended(BaseModel):
     # Charts
-    balances: list[Optional[ListElement]]
-    balancesR: list[Optional[ListElement]]
-    profits: list[Optional[ListElement]]
-    profitsR: list[Optional[ListElement]]
-    monthly: list[Optional[ListElement]]
-    weekly: list[Optional[ListElement]]
-    daily: list[Optional[ListElement]]
-    dailyPnL: list[Optional[ListElement]]
-    indexDaily: list[Optional[ListElement]]
-    indexWeekly: list[Optional[ListElement]]
-    indexMonthly: list[Optional[ListElement]]
-    maxDDHistory: list[Optional[ListElement]]
-    maxDDDHistory: list[Optional[ListElement]]
-    monthDDHistory: list[Optional[ListElement]]
-    
-    icp: list[Optional[ListElement]]
-    longPositions: list[Optional[ListElement]]
-    shortPositions: list[Optional[ListElement]]
-    longPositionsIcp: list[Optional[ListElement]]
-    shortPositionsIcp: list[Optional[ListElement]]
-    
-    lastMonthlyProfit: Optional[ListElement]
-    lastWeeklyProfit: Optional[ListElement]
-    lastDailyProfit: Optional[ListElement]
-    lastMonthlyNetProfit: Optional[ListElement]
-    lastWeeklyNetProfit: Optional[ListElement]
-    lastDailyNetProfit: Optional[ListElement]
+    chart_balances: list[ListElement]
+    chart_balancesR: list[ListElement]
+    chart_profits: list[ListElement]
+    chart_profitsR: list[ListElement]
+    chart_monthly: list[ListElement]
+    chart_weekly: list[ListElement]
+    chart_daily: list[ListElement]
+    chart_dailyPnL: list[ListElement]
+    chart_indexDaily: list[ListElement]
+    chart_indexWeekly: list[ListElement]
+    chart_indexMonthly: list[ListElement]
+    chart_maxDDHistory: list[ListElement]
+    chart_maxDDDHistory: list[ListElement]
+    chart_monthDDHistory: list[ListElement]
+
+    chart_icp: list[ListElement]
+    chart_longPositions: list[ListElement]
+    chart_shortPositions: list[ListElement]
+    chart_longPositionsIcp: list[ListElement]
+    chart_shortPositionsIcp: list[ListElement]
+
+    lastMonthlyProfit: ListElement
+    lastWeeklyProfit: ListElement
+    lastDailyProfit: ListElement
+    lastMonthlyNetProfit: ListElement
+    lastWeeklyNetProfit: ListElement
+    lastDailyNetProfit: ListElement
 
     # Indicators
     feeStat: FeeStats
@@ -134,16 +134,16 @@ class Extended(BaseModel):
     firstBalance: float
     maxBalance: float
     minBalance: float
-    lastBalance: float    
-    maxIcp: float    
-    avgIcp: float 
+    lastBalance: float
+    maxIcp: float
+    avgIcp: float
     lastMonthGrowth: float
     lastQuarterGrowth: float
     lastYearGrowth: float
     growthRate: float
     VaR: float
     maxdddRatio: float
-    betaRating: float   
+    betaRating: float
     usedMarkets: int
     totalTrades: int
 
