@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "python-tradelink"
 version = "0.1.0"
-description = ""
+description = "TradeLink public API python wrapper"
 authors = ["Anton <109826223+Arcadiyyyyyyyy@users.noreply.github.com>"]
 readme = "README.md"
 packages = [{include = "python_tradelink"}]
