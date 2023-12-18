@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "TradeLink public API python wrapper"
 authors = ["Anton <109826223+Arcadiyyyyyyyy@users.noreply.github.com>"]
 readme = "README.md"
-packages = [{include = "python_tradelink"}]
+packages = [{include = "tradelink"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
