@@ -39,3 +39,9 @@ class TradeLinkStep(Enum):
     week = "week"
     day = "day"
     hour = "hour"
+    
+
+class ErrorModel(BaseModel):
+    data: dict[Any, Any]
+    error: str
+    code: int

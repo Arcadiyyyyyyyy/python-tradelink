@@ -85,6 +85,10 @@ class Portfolio:
             self._logger.error(f"Failed to update info of portfolio {self.id}")
             self._logger.error(f"Validation error. {e}")
             return self
+        except ValueError as e:
+            self._logger.error(f"Failed to update info of portfolio {self.id}")
+            self._logger.error(f"Validation error. {e}")
+            return self
 
         if isinstance(response, str):
             self._logger.error(f"Failed to update info of portfolio {self.id}")
@@ -163,4 +167,4 @@ class Portfolio:
     @_portfolio_method
     async def get_unrpnl_last_netpnl(self) -> float:
         """Absolute value"""
-        return sum([x.value for x in self.cached_portfolio.extended.dailyPnL])
+        return sum([x.value for x in self.cached_portfolio.extended.dailyPnL])  # type: ignore
