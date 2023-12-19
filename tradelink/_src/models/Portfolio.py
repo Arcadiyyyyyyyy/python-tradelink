@@ -24,11 +24,11 @@ class PortfolioModel(BaseModel):
     showPositions: bool
     jet: Any  # Optional[dict[str, list[Optional[dict[str, str]] | bool]]]
     description: str
-    marketDirection: None | str
-    speed: None | str
-    managementType: None | str
-    positionType: None | str
-    riskType: None | str
+    # marketDirection: None | str
+    # speed: None | str
+    # managementType: None | str
+    # positionType: None | str
+    # riskType: None | str
     portfolioId: str
     rank: int
     rankDelta: int
