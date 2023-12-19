@@ -143,7 +143,7 @@ class Extended(BaseModel):
     growthRate: float
     VaR: float
     maxdddRatio: float
-    betaRating: float
+    betaRating: Optional[float]
     usedMarkets: int
     totalTrades: int
 
@@ -159,11 +159,11 @@ class Extended(BaseModel):
     progressPercent: int
     firstValidDataDate: str
     lastValidDataDate: str
-    updatedAt: None | str
+    updatedAt: Optional[str]
     startDate: str
     endDate: str
     beginMoment: str
-    selfPower: None | float
+    selfPower: Optional[float]
     selfProfitRate: float
-    integralEvaluation: float
+    integralEvaluation: Optional[float]
     riskFreeRate: float

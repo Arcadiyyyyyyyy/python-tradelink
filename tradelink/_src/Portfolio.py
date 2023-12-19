@@ -45,9 +45,13 @@ class Portfolio:
         self._logger = get_logger(__name__)
 
     @staticmethod
-    def _portfolio_method(func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
+    def _portfolio_method(
+        func: Callable[P, Awaitable[T]]
+    ) -> Callable[P, Awaitable[T]]:
         @wraps(func)
-        async def wrapper(self: 'Portfolio', *args: P.args, **kwargs: P.kwargs) -> Optional[T]:
+        async def wrapper(
+            self: "Portfolio", *args: P.args, **kwargs: P.kwargs
+        ) -> Optional[T]:
             if not self.cache_updated_at:
                 await self.update_info()
             else:
@@ -71,9 +75,15 @@ class Portfolio:
     async def update_info(self) -> "Portfolio":
         self._logger.debug(f"Started updating portfolio {self.id}")
         try:
-            response = await self.requester.get_portfolio(self.id, self.step)
-        except ValidationError:
+            response = await self.requester.get_portfolio(
+                self.id,
+                self.step,
+                start_date=self.start_date,
+                end_date=self.end_date,
+            )
+        except ValidationError as e:
             self._logger.error(f"Failed to update info of portfolio {self.id}")
+            self._logger.error(f"Validation error. {e}")
             return self
 
         if isinstance(response, str):

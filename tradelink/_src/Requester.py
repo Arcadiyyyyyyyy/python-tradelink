@@ -61,8 +61,8 @@ class Requester:
     async def _format_datetime(date_to_format: datetime) -> str:
         return (
             f"{date_to_format.year}-"
-            f"{date_to_format.month}-"
-            f"{date_to_format.day}"
+            f"{str(date_to_format.month).zfill(2)}-"
+            f"{str(date_to_format.day).zfill(2)}"
         )
 
     async def _generate_request_link(
