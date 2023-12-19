@@ -47,12 +47,10 @@ class Requester:
             RequestMethod.get,
             request_args=request_args,
         )
-
         response = await self._request(
             RequestMethod.get,
             request_path,
         )
-
         return (
             "Error"
             if isinstance(response, str)
@@ -98,10 +96,10 @@ class Requester:
         async with aiohttp.ClientSession() as session:
             match request_method.value:
                 case RequestMethod.get.value:
+                    self._logger.debug(
+                        f"Sent {RequestMethod.get.value.upper()} to {request_path}"
+                    )
                     async with session.get(request_path) as response:
-                        self._logger.debug(
-                            f"Sent {RequestMethod.get.value} to {request_path}"
-                        )
                         try:
                             data: ApiResponse = ApiResponse(
                                 **await response.json()
@@ -113,10 +111,10 @@ class Requester:
                             )
                             raise ValueError("Wrong TradeLink response")
                 case RequestMethod.post.value:
+                    self._logger.debug(
+                        f"Sent {RequestMethod.get.value.upper()} to {request_path}"
+                    )
                     async with session.post(request_path) as response:
-                        self._logger.debug(
-                            f"Sent {RequestMethod.get.value} to {request_path}"
-                        )
                         try:
                             data = ApiResponse(**await response.json())
                         except ValueError:
