@@ -48,7 +48,7 @@ class User(BaseModel):
 class Orders(BaseModel):
     withRealizedPnl: bool
     type: dict[str, OrderElement]
-    direction: dict[str, OrderElement | float]
+    direction: dict[str, OrderElement | float | None]
     volume: dict[str, float]
     distribution: dict[str, list[OrderElement]]
     symbols: list[Optional[SymbolElement]]
@@ -115,7 +115,7 @@ class Extended(BaseModel):
     averageDailyProfit: float
     averageProfit: float
     averageLoss: float
-    profitRatio: float
+    profitRatio: Optional[float]
     recoveryFactor: float
     expectedValue: float
     kSortino: float
@@ -141,7 +141,7 @@ class Extended(BaseModel):
     lastQuarterGrowth: float
     lastYearGrowth: float
     growthRate: float
-    VaR: float
+    VaR: Optional[float]
     maxdddRatio: float
     betaRating: Optional[float]
     usedMarkets: int

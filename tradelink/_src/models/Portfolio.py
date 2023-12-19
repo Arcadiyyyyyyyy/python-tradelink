@@ -1,7 +1,6 @@
 from enum import Enum
 from typing import Optional
 from pydantic import BaseModel
-from datetime import datetime
 from tradelink._src.models.Extended import Extended
 
 
@@ -9,9 +8,9 @@ class PortfolioModel(BaseModel):
     extended: Extended
 
     # Other
-    createdAt: datetime
-    startDate: datetime
-    updatedAt: datetime
+    createdAt: str
+    startDate: str
+    updatedAt: str
     views: int
     ctx: str
     disqualified: bool
@@ -23,7 +22,7 @@ class PortfolioModel(BaseModel):
     inRating: bool
     unlisted: bool
     showPositions: bool
-    jet: Optional[dict[str, list[Optional[dict[str, datetime]]] | bool]]
+    jet: Optional[dict[str, list[Optional[dict[str, str]] | bool]]]
     description: str
     marketDirection: None | str
     speed: None | str
@@ -34,7 +33,7 @@ class PortfolioModel(BaseModel):
     rank: int
     rankDelta: int
     stars: int
-    
+
 
 class TradeLinkStep(Enum):
     week = "week"
