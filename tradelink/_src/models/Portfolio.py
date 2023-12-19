@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional
+from typing import Any
 from pydantic import BaseModel
 from tradelink._src.models.Extended import Extended
 
@@ -22,7 +22,7 @@ class PortfolioModel(BaseModel):
     inRating: bool
     unlisted: bool
     showPositions: bool
-    jet: Optional[dict[str, list[Optional[dict[str, str]] | bool]]]
+    jet: Any  # Optional[dict[str, list[Optional[dict[str, str]] | bool]]]
     description: str
     marketDirection: None | str
     speed: None | str
