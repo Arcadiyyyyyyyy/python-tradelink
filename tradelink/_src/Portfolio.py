@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta
+from logging import Logger
+from typing import Awaitable, Callable, Optional, ParamSpec, TypeVar
 
 from pydantic import ValidationError
 from tradelink._src.Requester import Requester
@@ -7,26 +9,33 @@ from tradelink._src.models.Portfolio import (
     PortfolioModel,
     TradeLinkStep,
 )
+from functools import wraps
+
+
+T = TypeVar("T")
+P = ParamSpec("P")
 
 
 class Portfolio:
     id: str
     step: TradeLinkStep
-    start_date: datetime | None = None
-    end_date: datetime | None = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
     requester: Requester
 
     cached_portfolio: PortfolioModel
-    cache_updated_at: None | datetime = None
+    cache_updated_at: Optional[datetime] = None
 
     time_format: str = "%Y-%m-%dT%H:%M:%S.%fZ"
+
+    _logger: Logger
 
     def __init__(
         self,
         _id: str,
         step: TradeLinkStep = TradeLinkStep.day,
-        start_date: datetime | None = None,
-        end_date: datetime | None = None,
+        start_date: Optional[datetime] = None,
+        end_date: Optional[datetime] = None,
     ):
         self.id = _id
         self.step = step
@@ -35,24 +44,29 @@ class Portfolio:
         self.requester = Requester()
         self._logger = get_logger(__name__)
 
-    async def _update_cache_if_stale(self) -> None:
-        if not self.cache_updated_at:
-            await self.update_info()
-        else:
-            if (
-                self.cache_updated_at
-                and datetime.utcnow() - self.cache_updated_at
-                > timedelta(hours=1)
-            ):
+    @staticmethod
+    def _portfolio_method(func: Callable[P, Awaitable[T]]) -> Callable[P, Awaitable[T]]:
+        @wraps(func)
+        async def wrapper(self: 'Portfolio', *args: P.args, **kwargs: P.kwargs) -> Optional[T]:
+            if not self.cache_updated_at:
                 await self.update_info()
+            else:
+                if (
+                    self.cache_updated_at
+                    and datetime.utcnow() - self.cache_updated_at
+                    > timedelta(hours=1)
+                ):
+                    await self.update_info()
 
-        if not self.cached_portfolio:
-            self._logger.error(
-                f"Can't get total return of the portfolio {self.id}"
-            )
-            raise ValueError(
-                f"Can't get total return of the portfolio {self.id}"
-            )
+            if not self.cache_updated_at:
+                self._logger.error(
+                    f"Can't get data of the portfolio {self.id}"
+                )
+                return None
+
+            return await func(self, *args, **kwargs)  # type: ignore
+
+        return wrapper  # type: ignore
 
     async def update_info(self) -> "Portfolio":
         self._logger.debug(f"Started updating portfolio {self.id}")
@@ -72,78 +86,71 @@ class Portfolio:
         self._logger.info(f"Succesfully updated portfolio {self.id}")
         return self
 
+    @_portfolio_method
     async def get_total_return(self) -> float:
         """In percents"""
-        await self._update_cache_if_stale()
         return self.cached_portfolio.extended.lastProfit * 100
 
+    @_portfolio_method
     async def get_total_volume(self) -> float:
         """Absolute value"""
-        await self._update_cache_if_stale()
         return self.cached_portfolio.extended.feeStat.volume
 
+    @_portfolio_method
     async def get_last_valid_data_date(self) -> datetime:
-        await self._update_cache_if_stale()
         return datetime.strptime(
             self.cached_portfolio.extended.lastValidDataDate, self.time_format
         )
 
+    @_portfolio_method
     async def get_start_date(self) -> datetime:
-        await self._update_cache_if_stale()
         return datetime.strptime(
             self.cached_portfolio.extended.startDate, self.time_format
         )
 
+    @_portfolio_method
     async def get_end_date(self) -> datetime:
-        await self._update_cache_if_stale()
         return datetime.strptime(
             self.cached_portfolio.extended.endDate, self.time_format
         )
 
+    @_portfolio_method
     async def get_unrpnl_deposit_of_the_first_point(self) -> float:
         """Absolute unrealized value"""
-        await self._update_cache_if_stale()
-
         if (
-            self.cached_portfolio.extended.chart_balances
-            and self.cached_portfolio.extended.chart_profits
-            and self.cached_portfolio.extended.chart_balances[0]
-            and self.cached_portfolio.extended.chart_profits[0]
+            self.cached_portfolio.extended.balances
+            and self.cached_portfolio.extended.profits
+            and self.cached_portfolio.extended.balances[0]
+            and self.cached_portfolio.extended.profits[0]
         ):
-            return self.cached_portfolio.extended.chart_balances[0].value / (
-                1 + self.cached_portfolio.extended.chart_profits[0].value
+            return self.cached_portfolio.extended.balances[0].value / (
+                1 + self.cached_portfolio.extended.profits[0].value
             )
         else:
             return 0
 
+    @_portfolio_method
     async def get_total_deposits(self) -> float:
         """Absolute value"""
-        await self._update_cache_if_stale()
-
         return self.cached_portfolio.extended.feeStat.deps
 
+    @_portfolio_method
     async def get_total_withdraws(self) -> float:
         """Absolute value"""
-        await self._update_cache_if_stale()
-
         return self.cached_portfolio.extended.feeStat.wths
 
+    @_portfolio_method
     async def get_unrpnl_last_balance(self) -> float:
         """Absolute value"""
-        await self._update_cache_if_stale()
-
         if (
-            self.cached_portfolio.extended.chart_balances
-            and self.cached_portfolio.extended.chart_balances[0]
+            self.cached_portfolio.extended.balances
+            and self.cached_portfolio.extended.balances[0]
         ):
-            return self.cached_portfolio.extended.chart_balances[-1].value
+            return self.cached_portfolio.extended.balances[-1].value
         else:
             return 0
 
+    @_portfolio_method
     async def get_unrpnl_last_netpnl(self) -> float:
         """Absolute value"""
-        await self._update_cache_if_stale()
-
-        return sum(
-            [x.value for x in self.cached_portfolio.extended.chart_dailyPnL]
-        )
+        return sum([x.value for x in self.cached_portfolio.extended.dailyPnL])
