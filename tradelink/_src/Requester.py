@@ -100,14 +100,15 @@ class Requester:
                         f"Sent {RequestMethod.get.value.upper()} to {request_path}"
                     )
                     async with session.get(request_path) as response:
+                        response_json = await response.json(content_type=None)
                         try:
                             data: ApiResponse = ApiResponse(
-                                **await response.json()
+                                **response_json
                             )
                         except ValidationError:
                             self._logger.error(
                                 f"Wrong response from the "
-                                f"TradeLink API. {await response.json() if len(str(await response.json())) < 1000 else ''}"
+                                f"TradeLink API. {response_json if len(str(response_json)) < 1000 else ''}"
                             )
                             raise ValueError("Wrong TradeLink response")
                 case RequestMethod.post.value:
@@ -115,12 +116,13 @@ class Requester:
                         f"Sent {RequestMethod.get.value.upper()} to {request_path}"
                     )
                     async with session.post(request_path) as response:
+                        response_json = await response.json(content_type=None)
                         try:
-                            data = ApiResponse(**await response.json())
+                            data = ApiResponse(**response_json)
                         except ValueError:
                             self._logger.error(
                                 f"Wrong response from the "
-                                f"TradeLink API. {await response.json() if len(str(await response.json())) < 1000 else ''}"
+                                f"TradeLink API. {response_json if len(str(response_json)) < 1000 else ''}"
                             )
                             raise ValidationError("Wrong TradeLink response")
 
