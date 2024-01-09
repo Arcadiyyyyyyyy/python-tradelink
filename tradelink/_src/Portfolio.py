@@ -1,9 +1,19 @@
 from datetime import datetime, timedelta
 from logging import Logger
-from typing import Awaitable, Callable, Optional, ParamSpec, TypeVar
+from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    Optional,
+    ParamSpec,
+    TypeVar,
+)
 
 from pydantic import ValidationError
 from tradelink._src.Requester import Requester
+from tradelink._src.errors.TradeLinkAPIResponseError import (
+    TradeLinkAPIResponseError,
+)
 from tradelink._src.utils.logging import get_logger
 from tradelink._src.models.Portfolio import (
     PortfolioModel,
@@ -46,12 +56,12 @@ class Portfolio:
 
     @staticmethod
     def _portfolio_method(
-        func: Callable[P, Awaitable[T]]
-    ) -> Callable[P, Awaitable[T]]:
+        func: Callable[[Any], Awaitable[T]]
+    ) -> Callable[[Any], Awaitable[T]]:
         @wraps(func)
         async def wrapper(
             self: "Portfolio", *args: P.args, **kwargs: P.kwargs
-        ) -> Optional[T]:
+        ) -> T:
             if not self.cache_updated_at:
                 await self.update_info()
             else:
@@ -62,33 +72,25 @@ class Portfolio:
                 ):
                     await self.update_info()
 
-            if not self.cache_updated_at:
-                self._logger.error(
-                    f"Can't get data of the portfolio {self.id}"
-                )
-                return None
+            return await func(self, *args, **kwargs)
 
-            return await func(self, *args, **kwargs)  # type: ignore
-
-        return wrapper  # type: ignore
+        return wrapper
 
     async def update_info(self) -> "Portfolio":
         self._logger.debug(f"Started updating portfolio {self.id}")
         try:
             response = await self.requester.get_portfolio(
                 self.id,
-                self.step,
+                step=self.step,
                 start_date=self.start_date,
                 end_date=self.end_date,
             )
-        except ValidationError as e:
+        except (ValidationError, ValueError) as e:
             self._logger.error(f"Failed to update info of portfolio {self.id}")
             self._logger.error(f"Validation error. {e}")
-            return self
-        except ValueError as e:
-            self._logger.error(f"Failed to update info of portfolio {self.id}")
-            self._logger.error(f"Validation error. {e}")
-            return self
+            raise TradeLinkAPIResponseError(
+                f"API response didn't pass the validation. Most certainly this is the problem of the library"
+            )
 
         if isinstance(response, str):
             self._logger.error(f"Failed to update info of portfolio {self.id}")

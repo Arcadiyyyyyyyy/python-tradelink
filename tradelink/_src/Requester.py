@@ -26,6 +26,7 @@ class Requester:
     async def get_portfolio(
         self,
         portfolioId: str,
+        *, 
         step: TradeLinkStep = TradeLinkStep.day,
         start_date: datetime | None = None,
         end_date: datetime | None = None,
