@@ -30,7 +30,7 @@ jobs:
           git config --global user.name "GitHub Actions"
           git add pyproject.toml
           git commit -m "Bump version"
-          git push
+          git push --set-upstream origin version-bump-${{ github.run_number }}
 
   publish-service-client-package:
     runs-on: ubuntu-latest
