@@ -41,6 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    needs: bump-package-version
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
