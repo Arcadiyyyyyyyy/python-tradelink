@@ -116,20 +116,20 @@ class Extended(BaseModel):
     averageProfit: float
     averageLoss: float
     profitRatio: Optional[float]
-    recoveryFactor: float
+    recoveryFactor: Optional[float]
     expectedValue: Optional[float]
-    kSortino: float
-    kSharp: float
-    kCalmar: float
-    betaRatio: float
-    ADL: float
-    volatility: float
-    rSquared: float
-    informationRatio: float
-    treynorRatio: float
+    kSortino: Optional[float]
+    kSharp: Optional[float]
+    kCalmar: Optional[float]
+    betaRatio: Optional[float]
+    ADL: Optional[float]
+    volatility: Optional[float]
+    rSquared: Optional[float]
+    informationRatio: Optional[float]
+    treynorRatio: Optional[float]
     sterlingRatio: float
-    schwagerRatio: float
-    safetyFirstRatio: float
+    schwagerRatio: Optional[float]
+    safetyFirstRatio: Optional[float]
     averageBalance: float
     firstBalance: float
     maxBalance: float
